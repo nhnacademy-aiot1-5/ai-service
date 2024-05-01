@@ -1,3 +1,6 @@
+import pandas as pd
+from datetime import datetime
+
 def find_outlier(df, idx):
     df = df.sort_values(by=idx)
 
@@ -32,7 +35,5 @@ def find_hourly_outlier(df):
             }
         }
 
-
-        # r.set('test', data)
         df_result.loc[i] = data
     return df_result

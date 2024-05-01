@@ -4,9 +4,9 @@ import influx
 def get(window_period, type, phase, description, fn):
     query = f'from(bucket: "{influx.bucket}") \
           |> range(start: {influx.start_time}, stop: {influx.end_time}) \
-          |> filter(fn: (r) => r["type"] == {type})\
-          |> filter(fn: (r) => r["phase"] == {phase})\
-          |> filter(fn: (r) => r["description"] == {description})\
+          |> filter(fn: (r) => r["type"] == "{type}")\
+          |> filter(fn: (r) => r["phase"] == "{phase}")\
+          |> filter(fn: (r) => r["description"] == "{description}")\
           |> aggregateWindow(every: {window_period}, fn: {fn}, createEmpty: false)\
           |> group(columns: ["_time"]) \
           |> sum()\

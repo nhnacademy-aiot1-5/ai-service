@@ -1,4 +1,5 @@
 import train
+import pandas as pd
 
 model = train.model
 future = model.make_future_dataframe(periods=30*24, freq='1h', include_history=False)

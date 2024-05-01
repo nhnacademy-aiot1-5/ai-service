@@ -7,7 +7,7 @@ import redis_r as redis
 backup_table = 'predict_electricity_consumption_backup'
 predict_table = 'predict_electricity_consumption'
 
-outlier_table = 'hourly_outlier'
+outlier_table = 'hourly_outlier_test'
 
 def set_outlier():
     df = electricity.get_hourly_electricity()
@@ -24,3 +24,6 @@ def forecast():
     model = train.run(df_train)
     df_forecast = train.forecast(model)
     sql.insert(df_forecast, predict_table)
+
+set_outlier()
+forecast()

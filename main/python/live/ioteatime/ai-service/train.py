@@ -1,6 +1,3 @@
-import outlier
-import electricity
-
 import itertools
 import numpy as np
 import pandas as pd
@@ -44,7 +41,7 @@ def forecast(model):
     forecast = model.predict(future)
 
     df = forecast[['ds', 'yhat']]
-    df['ds'] = df['ds'].dt.strftime('%Y-%m-%d 00:00:00')
+    df.loc[:, 'ds'] = df['ds'].dt.strftime('%Y-%m-%d 00:00:00')
     df = pd.DataFrame(df.groupby(df.ds)['yhat'].sum())
     df = df.round(2)
     df = df.reset_index()

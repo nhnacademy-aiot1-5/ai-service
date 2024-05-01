@@ -1,5 +1,6 @@
 from sqlalchemy import create_engine
 import pandas as pd
+import pymysql
 
 database_user = 'nhn_academy_21'
 database_password = '*L]RAMG*8NYJnCKK'
