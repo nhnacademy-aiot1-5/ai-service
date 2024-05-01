@@ -1,11 +1,15 @@
 from sqlalchemy import create_engine
 import pandas as pd
 import pymysql
+import configparser as parser
 
-database_user = 'nhn_academy_21'
-database_password = '*L]RAMG*8NYJnCKK'
-host_address = '133.186.244.96'
-database_name = 'nhn_academy_21'
+properties = parser.ConfigParser()
+properties.read('../config.ini')
+
+database_user = properties['SQL']['database_user']
+database_password = properties['SQL']['database_password']
+host_address = properties['SQL']['host_address']
+database_name = properties['SQL']['database_name']
 
 db_connection_url = f'mysql+pymysql://{database_user}:{database_password}@{host_address}/{database_name}'
 engine = create_engine(db_connection_url)

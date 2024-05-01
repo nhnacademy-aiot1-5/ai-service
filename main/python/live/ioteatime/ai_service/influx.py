@@ -1,10 +1,14 @@
 from influxdb_client import InfluxDBClient
 from datetime import datetime
+import configparser as parser
 
-url = "http://133.186.223.19:8086/"
-token = "ex6Dl7PTXLfBbllG6wW5pn7y66aid8SRQP1ApmlQBJsflu6Q7cYwdEH2ZXJGSscC_PP9aFOW7LoNJNKbCIobGA=="
-org = "ioteatime"
-bucket = "ioteatime"
+properties = parser.ConfigParser()
+properties.read('../config.ini')
+
+url = properties['INFLUX']['url']
+token = properties['INFLUX']['token']
+org = properties['INFLUX']['org']
+bucket = properties['INFLUX']['bucket']
 
 client = InfluxDBClient(url=url, token=token, org=org)
 

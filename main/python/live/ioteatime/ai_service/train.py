@@ -5,14 +5,7 @@ from prophet import Prophet
 from prophet.diagnostics import cross_validation
 from prophet.diagnostics import performance_metrics
 
-
-param_grid = {
-    'changepoint_prior_scale': [0.001, 0.01, 0.05, 0.1, 0.5],
-    'seasonality_prior_scale': [0.01, 0.1, 1.0, 5.0, 10.0],
-    'holidays_prior_scale': [0.01, 0.1, 5.0, 10.0]
-}
-
-def run(df):
+def run(df, param_grid):
     all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
     rmses = []
 

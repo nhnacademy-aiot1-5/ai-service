@@ -1,10 +1,14 @@
 import redis
 import pandas as pd
+import configparser as parser
 
-host = '133.186.244.96'
-port=6379
-password="*N2vya7H@muDTwdNMR!"
-db = 40
+properties = parser.ConfigParser()
+properties.read('../config.ini')
+
+host = properties['REDIS']['host']
+port = properties['REDIS']['port']
+password = properties['REDIS']['password']
+db = properties['REDIS']['db']
 
 r = redis.Redis(host=host, port=port, password=password, db=db)
 
