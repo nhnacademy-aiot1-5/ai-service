@@ -3,7 +3,7 @@ import pandas as pd
 import configparser as parser
 
 properties = parser.ConfigParser()
-properties.read('../config.ini')
+properties.read('./config.ini')
 
 host = properties['REDIS']['host']
 port = properties['REDIS']['port']

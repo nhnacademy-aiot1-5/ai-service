@@ -3,7 +3,7 @@ from datetime import datetime
 import configparser as parser
 
 properties = parser.ConfigParser()
-properties.read('../config.ini')
+properties.read('./config.ini')
 
 url = properties['INFLUX']['url']
 token = properties['INFLUX']['token']

@@ -4,7 +4,7 @@ import pymysql
 import configparser as parser
 
 properties = parser.ConfigParser()
-properties.read('../config.ini')
+properties.read('./config.ini')
 
 database_user = properties['SQL']['database_user']
 database_password = properties['SQL']['database_password']

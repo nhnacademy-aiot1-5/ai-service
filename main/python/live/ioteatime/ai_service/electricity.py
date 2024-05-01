@@ -1,5 +1,5 @@
 import pandas as pd
-import influx
+from . import influx
 
 def get(window_period, type, phase, description, fn):
     query = f'from(bucket: "{influx.bucket}") \

@@ -1,8 +1,9 @@
 import sql
-import train
-import outlier
-import electricity
 import redis_r as redis
+
+from . import train
+from . import outlier
+from . import electricity
 
 def set_outlier(outlier_table):
     df = electricity.get_hourly_electricity()
