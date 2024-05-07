@@ -25,11 +25,16 @@ def get(window_period, type, phase, description, fn):
 
 # 전력 사용량
 def get_hourly_usage():
-    df = get('1h', 'main', 'kwh', 'this_month', 'last')
+    df = get('1h', 'main', 'kwh', 'sum', 'last')
     df_usage = pd.DataFrame(columns=['ds', 'y'])
 
+    k=0
     for i in range(0, df.shape[0]-1):
-        df_usage.loc[i] = [df.ds[i], df.y[i+1] - df.y[i]]
+        if df.ds[i+1] - df.ds[i] != pd.Timedelta(hours=1):
+            pass
+        else:
+            df_usage.loc[k] = [df.ds[i], df.y[i+1] - df.y[i]]
+            k=k+1
 
     return df_usage
 
