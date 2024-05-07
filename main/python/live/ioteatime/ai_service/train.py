@@ -46,13 +46,13 @@ def forecast(model, periods, freq):
     forecast = model.predict(future)
 
     df = forecast[['ds', 'yhat']].copy()
-    df.loc[:,'ds'] = df['ds'].dt.strftime('%Y-%m-%d 00:00:00')
     df = df.rename(columns={'yhat':'kwh', 'ds':'time'})
 
     return df
 
 def daily_forecast(model, periods, freq):
     df = forecast(model, periods, freq)
+    df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
     df = pd.DataFrame(df.groupby(df.time)['kwh'].sum())
     df = df.round(2)
     df = df.reset_index()
