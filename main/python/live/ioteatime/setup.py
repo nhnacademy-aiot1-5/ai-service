@@ -10,6 +10,7 @@ setup(
         'redis',
         'pymysql',
         'sqlalchemy',
-        'influxdb_client'
+        'influxdb_client',
+        'apscheduler'
     ]
 )

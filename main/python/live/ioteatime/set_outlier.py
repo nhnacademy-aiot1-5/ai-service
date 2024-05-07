@@ -1,5 +1,13 @@
 from ai_service.main import set_outlier
+from apscheduler.schedulers.background import BackgroundScheduler
 
-outlier_table = 'hourly_outlier_test'
+sched = BackgroundScheduler(timezone='Asia/Seoul')
 
-set_outlier(outlier_table)
+@sched.scheduled_job('cron', hour='12', minute='5', id='outlier')
+def job():
+    set_outlier()
+
+sched.start()
+
+while True:
+    pass

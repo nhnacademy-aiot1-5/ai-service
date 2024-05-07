@@ -1,3 +1,4 @@
+import sqlalchemy
 from sqlalchemy import create_engine
 import pandas as pd
 import pymysql
@@ -28,6 +29,10 @@ def insert(df, table):
         )
 
 def backup(from_t, to_t):
-    query_str = f"select * from {from_t}"
-    df_backup = query(query_str)
-    insert(df_backup, to_t)
+    try:
+        query_str = f"select * from {from_t}"
+        df_backup = query(query_str)
+        insert(df_backup, to_t)
+    except sqlalchemy.exc.ProgrammingError as e:
+        pass
+
