@@ -1,4 +1,5 @@
 import pandas as pd
+import math
 from . import influx
 
 def get(window_period, type, phase, description, fn):
@@ -28,13 +29,15 @@ def get_hourly_usage():
     df = get('1h', 'main', 'kwh', 'sum', 'last')
     df_usage = pd.DataFrame(columns=['ds', 'y'])
 
-    k=0
+    k = 0
+
     for i in range(0, df.shape[0]-1):
         if df.ds[i+1] - df.ds[i] != pd.Timedelta(hours=1):
             pass
         else:
-            df_usage.loc[k] = [df.ds[i], df.y[i+1] - df.y[i]]
-            k=k+1
+            hour_value = math.floor(df.y[i+1] - df.y[i] * 10) / 10
+            df_usage.loc[k] = [df.ds[i], hour_value]
+            k = k + 1
 
     return df_usage
 
