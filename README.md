@@ -3,16 +3,5 @@
 # 담당자
 - 이은지
 - 허시영
-# 구조
-![image](https://github.com/nhnacademy-aiot1-5/ai-service/assets/78470571/a5a8384a-16bb-472d-9836-a833b4ffa936)
-
-# 설치 방법
-### 모듈 설치
-- python3 setup.py sdist
-
-### 압축해제
-- pip install dist/ai_service-1.0.tar.gz
-
-### 실행
-- python3 -m set_outlier
-- python3 -m forecast
+# 서비스 진행 과정
+<img width="740" alt="스크린샷 2024-05-08 오후 2 49 51" src="https://github.com/nhnacademy-aiot1-5/ai-service/assets/102939647/ad4cfc35-3863-4b03-b226-6845a14fa3d5">
