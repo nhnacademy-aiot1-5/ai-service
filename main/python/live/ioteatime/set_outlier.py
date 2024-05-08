@@ -3,7 +3,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 
 sched = BackgroundScheduler(timezone='Asia/Seoul')
 
-@sched.scheduled_job('cron', hour='12', minute='5', id='outlier')
+@sched.scheduled_job('cron', hour='0', minute='5', id='outlier')
 def job():
     set_outlier()
 
