@@ -5,6 +5,7 @@ from prophet import Prophet
 from prophet.diagnostics import cross_validation
 from prophet.diagnostics import performance_metrics
 from . import influx
+from . import electricity
 
 def get_weekend():
     saturday_dates = pd.date_range(start=influx.start_time, end=influx.end_time, freq='W-SAT')
@@ -18,7 +19,7 @@ def get_weekend():
 
     return holidays
 
-def run(df, param_grid):
+def get_hyper_parameter_and_train(df, param_grid):
     all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
     rmses = []
 
@@ -27,7 +28,9 @@ def run(df, param_grid):
         m.add_country_holidays(country_name='KR')
         m.fit(df)
 
-        df_cv = cross_validation(m, horizon='1 days', parallel="processes")
+        horizon = electricity.get_horizon()
+
+        df_cv = cross_validation(m, horizon=horizon, parallel="processes")
         df_p = performance_metrics(df_cv, rolling_window=1)
         rmses.append(df_p['rmse'].values[0])
 
@@ -39,6 +42,7 @@ def run(df, param_grid):
     model = Prophet(holidays=get_weekend(), **best_params)
     model.add_country_holidays(country_name='KR')
     model.fit(df)
+    
     return model
 
 def forecast(model, periods, freq):
@@ -56,5 +60,6 @@ def daily_forecast(model, periods, freq):
     df = pd.DataFrame(df.groupby(df.time)['kwh'].sum())
     df = df.round(2)
     df = df.reset_index()
+
     return df
 

@@ -27,7 +27,7 @@ def forecast(param_grid):
     df_train = electricity.get_hourly_usage()
     df_train = outlier.set_outlier(df_train)
 
-    model = train.run(df_train, param_grid)
+    model = train.get_hyper_parameter_and_train(df_train, param_grid)
 
     df_forecast_d = train.daily_forecast(model, 24*30, '1h')
     sql.insert(df_forecast_d, daily_predict)

@@ -1,8 +1,7 @@
 import pandas as pd
-import math
 from . import influx
 
-def get(window_period, type, phase, description, fn):
+def get_query(window_period, type, phase, description, fn):
     query = f'from(bucket: "{influx.bucket}") \
           |> range(start: {influx.start_time}, stop: {influx.end_time}) \
           |> filter(fn: (r) => r["type"] == "{type}")\
@@ -24,9 +23,25 @@ def get(window_period, type, phase, description, fn):
 
     return df
 
+def calculate_horizon(window_period, type, phase, description, fn):
+    query = f'from(bucket: "{influx.bucket}") \
+              |> range(start: {influx.start_time}, stop: {influx.end_time}) \
+              |> filter(fn: (r) => r["type"] == "{type}")\
+              |> filter(fn: (r) => r["phase"] == "{phase}")\
+              |> filter(fn: (r) => r["description"] == "{description}")\
+              |> aggregateWindow(every: {window_period}, fn: {fn}, createEmpty: false)\
+              |> group(columns: ["_time"]) \
+              |> sum()\
+              |> group(mode: "by")\
+              |> count()'
+
+    result = influx.client.query_api().query(org=influx.org, query=query)
+
+    return str(int(result[0].records[0].get_value() / 4)) + ' days'
+
 # 전력 사용량
 def get_hourly_usage():
-    df = get('1h', 'main', 'kwh', 'sum', 'last')
+    df = get_query('1h', 'main', 'kwh', 'sum', 'last')
     df_usage = pd.DataFrame(columns=['ds', 'y'])
 
     k = 0
@@ -35,7 +50,7 @@ def get_hourly_usage():
         if df.ds[i+1] - df.ds[i] != pd.Timedelta(hours=1):
             pass
         else:
-            hour_value = math.floor(df.y[i+1] - df.y[i] * 10) / 10
+            hour_value = int(df.y[i+1] - df.y[i] * 10) / 10
             df_usage.loc[k] = [df.ds[i], hour_value]
             k = k + 1
 
@@ -43,4 +58,7 @@ def get_hourly_usage():
 
 # 시간별 w 평균
 def get_hourly_electricity():
-    return get('1h', 'main', 'total', 'w', 'mean')
+    return get_query('1h', 'main', 'total', 'w', 'mean')
+
+def get_horizon():
+    return calculate_horizon('1h', 'main', 'kwh', 'sum', 'last')
