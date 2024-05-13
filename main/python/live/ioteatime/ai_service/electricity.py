@@ -18,7 +18,7 @@ def get(window_period, type, phase, description, fn):
     df_json = pd.DataFrame(json_data)
 
     df = pd.DataFrame()
-    df['ds'] = pd.to_datetime(df_json['time']).dt.tz_localize(None)
+    df['ds'] = pd.to_datetime(df_json['time']).dt.tz_localize(None) + pd.Timedelta(hours = 8)
     df['y'] = pd.to_numeric(df_json['value'])
 
     return df
