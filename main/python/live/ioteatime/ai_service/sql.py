@@ -17,6 +17,7 @@ engine = create_engine(db_connection_url)
 
 def query(query):
     result = pd.read_sql(query, con=engine)
+
     return result
 
 def insert(df, table):
@@ -25,6 +26,15 @@ def insert(df, table):
             name = table,
             con = con,
             if_exists = 'replace',
+            index=False
+        )
+
+def append(df, table):
+    with engine.connect() as con:
+        df.to_sql(
+            name = table,
+            con = con,
+            if_exists = 'append',
             index=False
         )
 

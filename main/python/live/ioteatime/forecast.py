@@ -1,4 +1,4 @@
-from ai_service.main import forecast
+from ai_service import main
 from apscheduler.schedulers.background import BackgroundScheduler
 
 sched = BackgroundScheduler(timezone='Asia/Seoul')
@@ -12,7 +12,9 @@ param_grid = {
 
 @sched.scheduled_job('cron', hour='0', minute='5', id='forecast')
 def job():
-    forecast(param_grid)
+    main.backup()
+    main.total_usage_forecast(param_grid)
+    main.channel_usage_forecast(param_grid)
 
 sched.start()
 
