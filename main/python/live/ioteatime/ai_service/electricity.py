@@ -36,7 +36,7 @@ def get(query):
 
 def find_channels():
     channels = []
-    organization_id = sql.query(f'select organization_id from organizations where name="nhnacademy"').organization_id.loc[0]
+    organization_id = sql.query(f'select organization_id from organizations where name="{influx.org}"').organization_id.loc[0]
     df_sensors = sql.query(f'select sensor_id from modbus_sensors where organization_id={organization_id}')
     df_places = sql.query(f'select place_id, place_name from places where organization_id={organization_id}')
 

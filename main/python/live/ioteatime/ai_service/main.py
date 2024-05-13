@@ -57,7 +57,6 @@ def channel_usage_forecast(param_grid):
             if (df_train.y.loc[0] == df_train.y.loc[len(df_train)-1]):
                 df_forecast = train.linear(df_train.y.loc[0])
                 df_forecast['channel_id'] = channel.id.loc[idx]
-                print(df_forecast)
                 sql.append(df_forecast, daily_predict)
                 continue
 
@@ -65,5 +64,4 @@ def channel_usage_forecast(param_grid):
 
             df_forecast = train.daily_forecast(model, 24*30, '1h', outlier_value)
             df_forecast['channel_id'] = channel.id.loc[idx]
-            print(df_forecast)
             sql.append(df_forecast, daily_predict)

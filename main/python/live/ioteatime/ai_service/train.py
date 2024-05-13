@@ -50,6 +50,7 @@ def hourly_forecast(model, periods, freq, outlier_value):
     forecast = model.predict(future)
 
     df = forecast[['ds', 'yhat']].copy()
+    df = df.round(1)
     df = df.rename(columns={'yhat':'kwh', 'ds':'time'})
 
     return df
@@ -58,18 +59,15 @@ def daily_forecast(model, periods, freq, outlier_value):
     df = hourly_forecast(model, periods, freq, outlier_value)
     df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
     df = pd.DataFrame(df.groupby(df.time)['kwh'].sum())
-    df = df.round(2)
+    df = df.round(1)
     df = df.reset_index()
 
     return df
 
 def linear(value):
     df = pd.DataFrame(columns=['time', 'kwh'])
-    start = datetime.now().date()
-    df['time'] = pd.date_range(start=start, periods=30 ,freq='D')
+    df['time'] = pd.date_range(start=datetime.now(), periods=30 ,freq='D')
     df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
     df['kwh'] = value
 
-    print("linear")
-    print(df)
     return df
