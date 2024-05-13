@@ -2,9 +2,11 @@ import itertools
 import numpy as np
 import pandas as pd
 from prophet import Prophet
+from datetime import datetime
 from prophet.diagnostics import cross_validation
 from prophet.diagnostics import performance_metrics
 from . import influx
+from . import outlier
 
 def get_weekend():
     saturday_dates = pd.date_range(start=influx.start_time, end=influx.end_time, freq='W-SAT')
@@ -41,8 +43,9 @@ def run(df, param_grid):
     model.fit(df)
     return model
 
-def forecast(model, periods, freq):
+def forecast(model, periods, freq, outlier_value):
     future = model.make_future_dataframe(periods=periods, freq=freq, include_history=False)
+    outlier.set_outlier(future, outlier_value)
     forecast = model.predict(future)
 
     df = forecast[['ds', 'yhat']].copy()
@@ -50,11 +53,16 @@ def forecast(model, periods, freq):
 
     return df
 
-def daily_forecast(model, periods, freq):
-    df = forecast(model, periods, freq)
+def daily_forecast(model, periods, freq, outlier_value):
+    df = forecast(model, periods, freq, outlier_value)
     df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
     df = pd.DataFrame(df.groupby(df.time)['kwh'].sum())
     df = df.round(2)
     df = df.reset_index()
     return df
 
+def linear(value):
+    df = pd.DataFrame(columns=['time', 'kwh'])
+    df['time'] = pd.date_range(start=datetime.today(), periods=30 ,freq='D')
+    df['kwh'] = value
+    return df

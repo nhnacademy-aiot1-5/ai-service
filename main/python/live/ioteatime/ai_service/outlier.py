@@ -12,11 +12,15 @@ def find_outlier(df, idx):
 
     return min, max
 
-def set_outlier(df):
-    value = find_outlier(df, 'y')
+def set_outlier(df, value):
+    floor = round(value[0],2)
+    cap = round(value[1],2)
 
-    df['floor'] = round(value[0], 2)
-    df['cap'] = round(value[1], 2)
+    if (floor == cap):
+        cap += 0.1
+
+    df['floor'] = floor
+    df['cap'] = cap
 
     return df
 
