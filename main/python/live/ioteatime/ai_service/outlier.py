@@ -40,4 +40,5 @@ def find_hourly_outlier(df):
         }
 
         df_result.loc[i] = data
+
     return df_result

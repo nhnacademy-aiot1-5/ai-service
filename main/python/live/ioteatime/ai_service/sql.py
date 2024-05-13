@@ -17,6 +17,7 @@ engine = create_engine(db_connection_url)
 
 def query(query):
     result = pd.read_sql(query, con=engine)
+
     return result
 
 def insert(df, table):

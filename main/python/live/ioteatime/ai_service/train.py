@@ -41,9 +41,10 @@ def run(df, param_grid):
     model = Prophet(holidays=get_weekend(), **best_params)
     model.add_country_holidays(country_name='KR')
     model.fit(df)
+
     return model
 
-def forecast(model, periods, freq, outlier_value):
+def hourly_forecast(model, periods, freq, outlier_value):
     future = model.make_future_dataframe(periods=periods, freq=freq, include_history=False)
     outlier.set_outlier(future, outlier_value)
     forecast = model.predict(future)
@@ -54,15 +55,17 @@ def forecast(model, periods, freq, outlier_value):
     return df
 
 def daily_forecast(model, periods, freq, outlier_value):
-    df = forecast(model, periods, freq, outlier_value)
+    df = hourly_forecast(model, periods, freq, outlier_value)
     df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
     df = pd.DataFrame(df.groupby(df.time)['kwh'].sum())
     df = df.round(2)
     df = df.reset_index()
+
     return df
 
 def linear(value):
     df = pd.DataFrame(columns=['time', 'kwh'])
     df['time'] = pd.date_range(start=datetime.today(), periods=30 ,freq='D')
     df['kwh'] = value
+
     return df
