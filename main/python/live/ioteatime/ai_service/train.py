@@ -65,7 +65,11 @@ def daily_forecast(model, periods, freq, outlier_value):
 
 def linear(value):
     df = pd.DataFrame(columns=['time', 'kwh'])
-    df['time'] = pd.date_range(start=datetime.today(), periods=30 ,freq='D')
+    start = datetime.now().date()
+    df['time'] = pd.date_range(start=start, periods=30 ,freq='D')
+    df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
     df['kwh'] = value
 
+    print("linear")
+    print(df)
     return df

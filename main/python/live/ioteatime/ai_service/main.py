@@ -35,9 +35,11 @@ def total_usage_forecast(param_grid):
     model = train.run(df_train, param_grid)
 
     df_daily_forecast = train.daily_forecast(model, 24*30, '1h', outlier_value)
+    df_daily_forecast['channel_id'] = -1
     sql.insert(df_daily_forecast, daily_predict)
 
     df_hourly_forecast = train.hourly_forecast(model, 24*3, '1h', outlier_value)
+    df_hourly_forecast['channel_id'] = -1
     sql.insert(df_hourly_forecast, hourly_predict)
 
 def channel_usage_forecast(param_grid):
@@ -54,10 +56,14 @@ def channel_usage_forecast(param_grid):
 
             if (df_train.y.loc[0] == df_train.y.loc[len(df_train)-1]):
                 df_forecast = train.linear(df_train.y.loc[0])
-                sql.insert(df_forecast, daily_predict)
+                df_forecast['channel_id'] = channel.id.loc[idx]
+                print(df_forecast)
+                sql.append(df_forecast, daily_predict)
                 continue
 
             model = train.run(df_train, param_grid)
 
             df_forecast = train.daily_forecast(model, 24*30, '1h', outlier_value)
-            sql.insert(df_forecast, daily_predict)
+            df_forecast['channel_id'] = channel.id.loc[idx]
+            print(df_forecast)
+            sql.append(df_forecast, daily_predict)

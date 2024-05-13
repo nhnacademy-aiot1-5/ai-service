@@ -29,6 +29,15 @@ def insert(df, table):
             index=False
         )
 
+def append(df, table):
+    with engine.connect() as con:
+        df.to_sql(
+            name = table,
+            con = con,
+            if_exists = 'append',
+            index=False
+        )
+
 def backup(from_t, to_t):
     try:
         query_str = f"select * from {from_t}"
