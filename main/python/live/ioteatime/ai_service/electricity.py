@@ -1,10 +1,9 @@
 import pandas as pd
-from . import influx
 from . import sql
 
-def query_all(window_period, phase, description, fn):
-    return f'from(bucket: "{influx.bucket}") \
-          |> range(start: {influx.start_time}, stop: {influx.end_time}) \
+def query_all(org, window_period, phase, description, fn):
+    query = f'from(bucket: "{org.organization_name}") \
+          |> range(start: {org.start_time}, stop: {org.end_time}) \
           |> filter(fn: (r) => r["type"] == "main")\
           |> filter(fn: (r) => r["phase"] == "{phase}")\
           |> filter(fn: (r) => r["description"] == "{description}")\
@@ -13,18 +12,20 @@ def query_all(window_period, phase, description, fn):
           |> sum()\
           |> group(mode: "by")'
 
-def query(window_period, place, type, phase, description, fn):
-    return f'from(bucket: "{influx.bucket}") \
-          |> range(start: {influx.start_time}, stop: {influx.end_time}) \
+    return org.client.query_api().query(org=org.organization_name, query=query)
+
+def query(org, window_period, place, type, phase, description, fn):
+    query = f'from(bucket: "{org.organization_name}") \
+          |> range(start: {org.start_time}, stop: {org.end_time}) \
           |> filter(fn: (r) => r["place"] == "{place}")\
           |> filter(fn: (r) => r["type"] == "{type}")\
           |> filter(fn: (r) => r["phase"] == "{phase}")\
           |> filter(fn: (r) => r["description"] == "{description}")\
           |> aggregateWindow(every: {window_period}, fn: {fn}, createEmpty: false)'
 
-def get(query):
-    result = influx.client.query_api().query(org=influx.org, query=query)
+    return org.client.query_api().query(org=org.organization_name, query=query)
 
+def format(result):
     json_data = [{"time": record.get_time(), "value": record.get_value()} for record in result[0]]
     df_json = pd.DataFrame(json_data)
 
@@ -34,11 +35,10 @@ def get(query):
 
     return df
 
-def find_channels():
+def find_channels(id):
     channels = []
-    organization_id = sql.query(f'select organization_id from organizations where name="{influx.org}"').organization_id.loc[0]
-    df_sensors = sql.query(f'select sensor_id from modbus_sensors where organization_id={organization_id}')
-    df_places = sql.query(f'select place_id, place_name from places where organization_id={organization_id}')
+    df_sensors = sql.query(f'select sensor_id from modbus_sensors where organization_id={id}')
+    df_places = sql.query(f'select place_id, place_name from places where organization_id={id}')
 
     for i in range(len(df_sensors)):
         df_channel = sql.query(f"select channel_id, place_id, channel_name from channels where sensor_id={df_sensors.sensor_id.loc[i]}")
@@ -66,7 +66,7 @@ def get_usage(df):
     return df_usage
 
 # 시간별 w 평균
-def get_hourly_electricity(window_period):
-    query = query_all(window_period, 'total', 'w', 'mean')
+def get_hourly_electricity(org, window_period):
+    query = query_all(org, window_period, 'total', 'w', 'mean')
 
-    return get(query)
+    return format(query)

@@ -5,11 +5,10 @@ from prophet import Prophet
 from datetime import datetime
 from prophet.diagnostics import cross_validation
 from prophet.diagnostics import performance_metrics
-from . import influx
 from . import outlier
 
-def get_weekend():
-    saturday_dates = pd.date_range(start=influx.start_time, end=influx.end_time, freq='W-SAT')
+def get_weekend(org):
+    saturday_dates = pd.date_range(start=org.start_time, end=org.end_time, freq='W-SAT')
 
     holidays = pd.DataFrame({
         'holiday': 'weekend',
@@ -20,12 +19,12 @@ def get_weekend():
 
     return holidays
 
-def run(df, param_grid):
+def run(org, df, param_grid):
     all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
     rmses = []
 
     for params in all_params:
-        m = Prophet(holidays=get_weekend(), **params)
+        m = Prophet(holidays=get_weekend(org), **params)
         m.add_country_holidays(country_name='KR')
         m.fit(df)
 
@@ -38,7 +37,7 @@ def run(df, param_grid):
 
     best_params = all_params[np.argmin(rmses)]
 
-    model = Prophet(holidays=get_weekend(), **best_params)
+    model = Prophet(holidays=get_weekend(org), **best_params)
     model.add_country_holidays(country_name='KR')
     model.fit(df)
 
@@ -64,7 +63,7 @@ def daily_forecast(model, periods, freq, outlier_value):
 
     return df
 
-def linear(value):
+def constant(value):
     df = pd.DataFrame(columns=['time', 'kwh'])
     df['time'] = pd.date_range(start=datetime.now(), periods=30 ,freq='D')
     df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
