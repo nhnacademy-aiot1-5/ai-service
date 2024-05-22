@@ -1,11 +1,14 @@
 import itertools
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 from prophet import Prophet
-from datetime import datetime
 from prophet.diagnostics import cross_validation
 from prophet.diagnostics import performance_metrics
-from . import outlier
+
+from . import electricity
+
 
 def get_weekend(org):
     saturday_dates = pd.date_range(start=org.start_time, end=org.end_time, freq='W-SAT')
@@ -45,7 +48,7 @@ def run(org, df, param_grid):
 
 def hourly_forecast(model, periods, freq, outlier_value):
     future = model.make_future_dataframe(periods=periods, freq=freq, include_history=False)
-    outlier.set_outlier(future, outlier_value)
+    electricity.set_outlier(future, outlier_value)
     forecast = model.predict(future)
 
     df = forecast[['ds', 'yhat']].copy()

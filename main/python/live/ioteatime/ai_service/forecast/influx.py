@@ -1,7 +1,9 @@
+import configparser as parser
+from datetime import datetime, timedelta
+
 import pandas as pd
 from influxdb_client import InfluxDBClient
-from datetime import datetime, timedelta
-import configparser as parser
+
 from . import sql
 
 properties = parser.ConfigParser()
