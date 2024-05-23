@@ -1,4 +1,4 @@
-from outiler import main
+from outlier import main
 from apscheduler.schedulers.background import BackgroundScheduler
 
 sched = BackgroundScheduler(timezone='Asia/Seoul')
