@@ -1,5 +1,6 @@
-from forecast import main
 from apscheduler.schedulers.background import BackgroundScheduler
+
+from forecast import main
 
 sched = BackgroundScheduler(timezone='Asia/Seoul')
 
