@@ -14,4 +14,4 @@ db = properties['REDIS']['db']
 r = redis.Redis(host=host, port=port, password=password, db=db)
 
 def set(name, dict):
-    r.set(name, json.dumps(dict))
+    r.set(name, json.dumps(dict), ex=60*60*24)
