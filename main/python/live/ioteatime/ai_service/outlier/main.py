@@ -43,12 +43,10 @@ def find_values(df):
         value = find_outlier(df_hourly, 'y')
 
         value = {
-            "outlier": {
-                'id' : i,
-                'min': round(value[0], 2),
-                'max': round(value[1], 2),
-                'updated_at': str(datetime.now().date()),
-            }
+            'id' : i,
+            'min': round(value[0], 2),
+            'max': round(value[1], 2),
+            'updated_at': str(datetime.now().date())
         }
 
         values.append(value)
