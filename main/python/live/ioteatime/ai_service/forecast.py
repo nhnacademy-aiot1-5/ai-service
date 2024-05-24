@@ -13,7 +13,6 @@ param_grid = {
 
 @sched.scheduled_job('cron', hour='0', minute='5', id='forecast')
 def job():
-    main.backup()
     main.run(param_grid)
 
 sched.start()
