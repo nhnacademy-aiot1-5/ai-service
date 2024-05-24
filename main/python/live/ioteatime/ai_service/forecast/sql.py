@@ -38,6 +38,11 @@ def append(df, table):
             index=False
         )
 
+def save(df, table, organization_id, channel_id):
+    df['organization_id'] = organization_id
+    df['channel_id'] = channel_id
+    append(df, table)
+
 def backup(from_t, to_t):
     try:
         query_str = f"select * from {from_t}"

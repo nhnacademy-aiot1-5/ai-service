@@ -32,4 +32,5 @@ def df_org():
 
         yesterday_midnight = datetime.now().replace(hour=16, minute=0, second=0, microsecond=0) - timedelta(days = 1)
         df.loc[i, 'end_time'] = yesterday_midnight.isoformat() + 'Z'
+
     return df

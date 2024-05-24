@@ -1,5 +1,5 @@
+import configparser as parser
 import itertools
-from datetime import datetime
 
 import numpy as np
 import pandas as pd
@@ -8,39 +8,39 @@ from prophet.diagnostics import cross_validation
 from prophet.diagnostics import performance_metrics
 
 from . import electricity
+from . import sql
 
+properties = parser.ConfigParser()
+properties.read('./config.ini')
 
-def get_weekend(org):
-    saturday_dates = pd.date_range(start=org.start_time, end=org.end_time, freq='W-SAT')
+hourly_backup = properties['TABLE']['hourly_backup']
+hourly_predict = properties['TABLE']['hourly_predict']
+daily_backup = properties['TABLE']['daily_backup']
+daily_predict = properties['TABLE']['daily_predict']
 
-    holidays = pd.DataFrame({
-        'holiday': 'weekend',
-        'ds': saturday_dates,
-        'lower_window': 0,
-        'upper_window': 1
-    })
+def forecast(param_grid, org, query, channel, channel_id):
+    organization_id = org.organization_id
 
-    return holidays
+    df_usage = electricity.get_usage(org, query)
+    df_usage = electricity.format_w(df_usage)
 
-def run(org, df, param_grid):
-    all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
-    rmses = []
+    if df_usage.empty or electricity.is_constant(df_usage, daily_predict, organization_id, channel_id):
+        return
 
-    for params in all_params:
-        m = Prophet(holidays=get_weekend(org), **params)
-        m.add_country_holidays(country_name='KR')
-        m.fit(df)
+    outlier_value = electricity.find_outlier(df_usage, 'y')
+    df_train = electricity.set_outlier(df_usage, outlier_value)
 
-        df_cv = cross_validation(m, horizon='1 days', parallel="processes")
-        df_p = performance_metrics(df_cv, rolling_window=1)
-        rmses.append(df_p['rmse'].values[0])
+    param_grid = find_param(org, df_train, channel, param_grid)
+    model = modeling(org, param_grid, df_train)
 
-    tuning_results = pd.DataFrame(all_params)
-    tuning_results['rmse'] = rmses
+    df_daily_forecast = daily_forecast(model, 24*60, '1h', outlier_value)
+    sql.save(df_daily_forecast, daily_predict, organization_id, channel_id)
 
-    best_params = all_params[np.argmin(rmses)]
+    df_hourly_forecast = hourly_forecast(model, 24*3, '1h', outlier_value)
+    sql.save(df_hourly_forecast, hourly_predict, organization_id, channel_id)
 
-    model = Prophet(holidays=get_weekend(org), **best_params)
+def modeling(org, params, df):
+    model = Prophet(holidays=get_weekend(org), **params)
     model.add_country_holidays(country_name='KR')
     model.fit(df)
 
@@ -66,10 +66,41 @@ def daily_forecast(model, periods, freq, outlier_value):
 
     return df
 
-def constant(value):
-    df = pd.DataFrame(columns=['time', 'kwh'])
-    df['time'] = pd.date_range(start=datetime.now(), periods=30 ,freq='D')
-    df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
-    df['kwh'] = value
+def get_weekend(org):
+    saturday_dates = pd.date_range(start=org.start_time, end=org.end_time, freq='W-SAT')
 
-    return df
+    holidays = pd.DataFrame({
+        'holiday': 'weekend',
+        'ds': saturday_dates,
+        'lower_window': 0,
+        'upper_window': 1
+    })
+
+    return holidays
+
+def get_best_param(org, df, param_grid):
+    all_params = [dict(zip(param_grid.keys(), v)) for v in itertools.product(*param_grid.values())]
+    rmses = []
+
+    for params in all_params:
+        model = modeling(org, params, df)
+        df_cv = cross_validation(model, horizon='1 days', parallel="processes")
+        df_p = performance_metrics(df_cv, rolling_window=1)
+        rmses.append(df_p['rmse'].values[0])
+
+    tuning_results = pd.DataFrame(all_params)
+    tuning_results['rmse'] = rmses
+
+    best_params = all_params[np.argmin(rmses)]
+
+    return best_params
+
+def find_param(org, df, channel, param):
+    if channel == 'main':
+        return get_best_param(org, df, param)
+
+    param = {
+        'growth':'logistic'
+    }
+
+    return param
