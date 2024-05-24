@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pandas as pd
 
 from . import sql
@@ -19,20 +21,7 @@ def find_channels(id):
 
     return channels
 
-def query_kwh_all(org, window_period):
-    query = f'from(bucket: "{org.organization_name}") \
-          |> range(start: {org.start_time}, stop: {org.end_time}) \
-          |> filter(fn: (r) => r["type"] == "main")\
-          |> filter(fn: (r) => r["phase"] == "kwh")\
-          |> filter(fn: (r) => r["description"] == "sum")\
-          |> aggregateWindow(every: {window_period}, fn: last, createEmpty: false)\
-          |> group(columns: ["_time"]) \
-          |> sum()\
-          |> group(mode: "by")'
-
-    return query
-
-def query_kwh(org, window_period, place, type):
+def get_query(org, window_period, place, type):
     query = f'from(bucket: "{org.organization_name}") \
           |> range(start: {org.start_time}, stop: {org.end_time}) \
           |> filter(fn: (r) => r["place"] == "{place}")\
@@ -43,19 +32,18 @@ def query_kwh(org, window_period, place, type):
 
     return query
 
-def get_kwh(org, query):
+def get_usage(org, query):
     result = org.client.query_api().query(org=org.organization_name, query=query)
+
     json_data = [{"time": record.get_time(), "value": record.get_value()} for record in result[0]]
     df_json = pd.DataFrame(json_data)
 
     df = pd.DataFrame()
     df['ds'] = pd.to_datetime(df_json['time']).dt.tz_localize(None) + pd.Timedelta(hours = 8)
     df['y'] = pd.to_numeric(df_json['value'])
+
     return df
 
-
-
-# 전력 사용량
 def format_w(df):
     df_usage = pd.DataFrame(columns=['ds', 'y'])
 
@@ -68,6 +56,15 @@ def format_w(df):
             k=k+1
 
     return df_usage
+
+def is_constant(df_usage, table, organization_id, channel_id):
+    if (df_usage.y.loc[0] == df_usage.y.loc[len(df_usage)-1]):
+        df = pd.DataFrame(columns=['time', 'kwh'])
+        df['time'] = pd.date_range(start=datetime.now(), periods=30 ,freq='D')
+        df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
+        df['kwh'] = df_usage.y.loc[0]
+
+        sql.save(df, table, organization_id, channel_id)
 
 def find_outlier(df, idx):
     df = df.sort_values(by=idx)
@@ -91,3 +88,4 @@ def set_outlier(df, value):
     df['cap'] = cap
 
     return df
+
