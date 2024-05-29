@@ -52,7 +52,7 @@ def format_w(df):
         if df.ds[i+1] - df.ds[i] != pd.Timedelta(hours=1):
             pass
         else:
-            df_usage.loc[k] = [df.ds[i], df.y[i+1] - df.y[i]]
+            df_usage.loc[k] = [df.ds[i], round(df.y[i+1] - df.y[i], 2)]
             k=k+1
 
     return df_usage
@@ -71,9 +71,14 @@ def find_outlier(df, idx):
 
     q1 = df.iloc[int(len(df)*(1/4))-1][idx]
     q3 = df.iloc[int(len(df)*(3/4))-1][idx]
+
     iqr = q3-q1
+
     min = q1-1.5*iqr
     max = q3+1.5*iqr
+
+    if (min < 0) : min = 0
+    if (max < 0) : max = 0
 
     return min, max
 
