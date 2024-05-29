@@ -1,6 +1,7 @@
 from apscheduler.schedulers.background import BackgroundScheduler
 
-from forecast import main
+from forecast import main as forecast
+from outlier import main as outlier
 
 sched = BackgroundScheduler(timezone='Asia/Seoul')
 
@@ -11,9 +12,15 @@ param_grid = {
     'growth':['logistic', 'linear']
 }
 
+organization_id = 1
+
 @sched.scheduled_job('cron', hour='0', minute='5', id='forecast')
-def job():
-    main.run(param_grid)
+def forecast():
+    forecast.run(param_grid)
+
+@sched.scheduled_job('cron', hour='0', minute='5', id='outlier')
+def outlier():
+    outlier.run(organization_id)
 
 sched.start()
 
