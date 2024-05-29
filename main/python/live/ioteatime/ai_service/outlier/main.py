@@ -23,6 +23,9 @@ def find_outliers(df_places):
 
     for i in range(0, len(df_places)):
         place = df_places.place_name[i]
+
+        if place == 'total' : continue
+
         df = get_hourly_electricity(get_query('1h', place))
         values = find_values(df)
 
@@ -79,7 +82,9 @@ def find_outlier(df, idx):
 
     q1 = df.iloc[int(len(df)*(1/4))-1][idx]
     q3 = df.iloc[int(len(df)*(3/4))-1][idx]
+
     iqr = q3-q1
+
     min = q1-1.5*iqr
     max = q3+1.5*iqr
 

@@ -53,6 +53,7 @@ def hourly_forecast(model, periods, freq, outlier_value):
 
     df = forecast[['ds', 'yhat']].copy()
     df = df.round(1)
+    df.loc[df['yhat'] < 0, 'yhat'] = 0
     df = df.rename(columns={'yhat':'kwh', 'ds':'time'})
 
     return df
@@ -62,6 +63,7 @@ def daily_forecast(model, periods, freq, outlier_value):
     df.loc[:,'time'] = df['time'].dt.strftime('%Y-%m-%d 00:00:00')
     df = pd.DataFrame(df.groupby(df.time)['kwh'].sum())
     df = df.round(1)
+    df.loc[df['kwh'] < 0, 'kwh'] = 0
     df = df.reset_index()
 
     return df
