@@ -88,4 +88,7 @@ def find_outlier(df, idx):
     min = q1-1.5*iqr
     max = q3+1.5*iqr
 
+    if min < 0 : min = 0
+    if max < 0 : max = 0
+
     return min, max
