@@ -40,9 +40,10 @@ def find_outliers(df_places):
 
 def find_values(df):
     values = []
+    df_weekday = df[(pd.DatetimeIndex(df.ds).weekday == datetime.now().weekday())]
 
     for i in range(0, 24):
-        df_hourly = df[(pd.DatetimeIndex(df.ds).hour == i)]
+        df_hourly = df_weekday[(pd.DatetimeIndex(df_weekday.ds).hour == i)]
         value = find_outlier(df_hourly, 'y')
 
         value = {
