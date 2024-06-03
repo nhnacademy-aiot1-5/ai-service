@@ -14,12 +14,12 @@ param_grid = {
 
 organization_id = 1
 
-@sched.scheduled_job('cron', hour='0', minute='5', id='forecast')
-def forecast():
+@sched.scheduled_job('cron', hour='0', minute='10', id='forecast')
+def run_forecast():
     forecast.run(param_grid)
 
 @sched.scheduled_job('cron', hour='0', minute='5', id='outlier')
-def outlier():
+def run_outlier():
     outlier.run(organization_id)
 
 sched.start()
