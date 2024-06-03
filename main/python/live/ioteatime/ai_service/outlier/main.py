@@ -26,7 +26,7 @@ def find_outliers(df_places):
 
         if place == 'total' : continue
 
-        df = get_hourly_electricity(get_query('1h', place))
+        df = get_hourly_electricity(get_query('5m', place))
         values = find_values(df)
 
         outlier = {
@@ -40,7 +40,9 @@ def find_outliers(df_places):
 
 def find_values(df):
     values = []
-    df_weekday = df[(pd.DatetimeIndex(df.ds).weekday == datetime.now().weekday())]
+
+    if datetime.now().weekday() < 6 : df_weekday = df[(pd.DatetimeIndex(df.ds).weekday < 5)]
+    else : df_weekday = df[(pd.DatetimeIndex(df.ds).weekday > 4)]
 
     for i in range(0, 24):
         df_hourly = df_weekday[(pd.DatetimeIndex(df_weekday.ds).hour == i)]
@@ -81,8 +83,8 @@ def get_hourly_electricity(query):
 def find_outlier(df, idx):
     df = df.sort_values(by=idx)
 
-    q1 = df.iloc[int(len(df)*(1/4))-1][idx]
-    q3 = df.iloc[int(len(df)*(3/4))-1][idx]
+    q1 = df.iloc[int(len(df)*(1/4))][idx]
+    q3 = df.iloc[int(len(df)*(3/4))][idx]
 
     iqr = q3-q1
 
