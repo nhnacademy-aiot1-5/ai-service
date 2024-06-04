@@ -1,4 +1,6 @@
 import configparser as parser
+import datetime
+import logging
 
 import pandas as pd
 
@@ -6,6 +8,11 @@ from . import electricity
 from . import influx
 from . import sql
 from . import train
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+handler = logging.FileHandler('ioteatime.log')
+log.addHandler(handler)
 
 properties = parser.ConfigParser()
 properties.read('./config.ini')
@@ -25,10 +32,18 @@ def backup():
     sql.insert(df_init, daily_predict)
 
 def run(param_grid):
+    log.info("테이블 초기화 시작" + str(datetime.datetime.now()))
     backup()
+    log.info("테이블 초기화 완료" + str(datetime.datetime.now()))
+    log.info("채널별 예측 시작" + str(datetime.datetime.now()))
     channel_forecast(param_grid)
+    log.info("채널별 예측 완료" + str(datetime.datetime.now()))
+    log.info("총 전력량 예측 시작(시간별)" + str(datetime.datetime.now()))
     all_forecast(hourly_predict)
+    log.info("총 전력량 예측 완료(시간별)" + str(datetime.datetime.now()))
+    log.info("총 전력량 예측 시작(일별)" + str(datetime.datetime.now()))
     all_forecast(daily_predict)
+    log.info("총 전력량 예측 완료(일별)" + str(datetime.datetime.now()))
 
 def channel_forecast(param_grid):
     df_org = influx.df_org()

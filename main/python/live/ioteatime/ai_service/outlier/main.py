@@ -1,11 +1,16 @@
 import configparser as parser
 from datetime import datetime
-
+import logging
 import pandas as pd
 
 from . import influx
 from . import redis_r as redis
 from . import sql
+
+log = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+handler = logging.FileHandler('ioteatime.log')
+log.addHandler(handler)
 
 properties = parser.ConfigParser()
 properties.read('./config.ini')
@@ -14,9 +19,13 @@ outlier_table = properties['TABLE']['outlier']
 
 def run(id):
     df_places = sql.query(f'select place_name from places where organization_id={id}')
+    log.info("outlier 계산 시작")
     outliers = find_outliers(df_places)
+    log.info("outlier 계산 완료")
 
+    log.info("redis 저장중")
     redis.set("outliers", outliers)
+    log.info("redis 저장 완료")
 
 def find_outliers(df_places):
     outliers = []
