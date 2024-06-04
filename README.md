@@ -2,7 +2,7 @@
 <img width="1117" alt="image" src="https://github.com/nhnacademy-aiot1-5/ai-service/assets/98167706/12c79f7e-f0a5-4662-bdca-8bd58ff9c919">
 <br>
 <br>
-지금까지의 전력량 데이터를 학습하고 추후 30일 전력 소비량을 예측하는 ai 서비스입니다.
+지금까지의 전력량 데이터를 학습하고 추후 30일 전력 소비량을 예측하는 AI 서비스입니다.
 <br>
 <br>
 <div>
