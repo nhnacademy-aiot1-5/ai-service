@@ -2,6 +2,7 @@ import configparser as parser
 import datetime
 import logging
 
+import numpy as np
 import pandas as pd
 
 from . import electricity
@@ -24,6 +25,12 @@ daily_predict = properties['TABLE']['daily_predict']
 
 def backup():
     df_init = pd.DataFrame(columns=['organization_id', 'channel_id', 'time', 'kwh', 'bill'])
+    df_init = df_init.astype({
+        'organization_id': np.int32,
+        'channel_id': np.int32,
+        'time': 'datetime64[ns]',
+        'kwh': np.float64,
+        'bill': np.int64})
 
     sql.backup(hourly_predict, hourly_backup)
     sql.insert(df_init, hourly_predict)
