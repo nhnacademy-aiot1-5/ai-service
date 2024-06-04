@@ -5,6 +5,19 @@
 지금까지의 전력량 데이터를 학습하고 추후 30일 전력 소비량을 예측하는 ai 서비스입니다.
 <br>
 <br>
+<div>
+<img src="https://img.shields.io/badge/python-3776AB?style=for-the-badge&logo=python&logoColor=white">
+<img src="https://img.shields.io/badge/prophet-3D5A96?style=for-the-badge&logo=prophet&logoColor=white">
+<br>
+<img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
+<img src="https://img.shields.io/badge/influxdb-22ADF6?style=for-the-badge&logo=influxdb&logoColor=white">
+<br>
+<img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
+<img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
+<img src="https://img.shields.io/badge/nhncloud-2B5CDE?style=for-the-badge&logo=cloudera&logoColor=white">
+</div>
+<br>
+<br>
 
 ## 🛠️ 개발 내용
 ### 👩‍💻 이은지
