@@ -1,7 +1,8 @@
 import datetime
-
-from apscheduler.schedulers.background import BackgroundScheduler
 import logging
+
+import schedule
+import time
 
 from forecast import main as forecast
 from outlier import main as outlier
@@ -11,8 +12,6 @@ logging.basicConfig(level=logging.INFO)
 handler = logging.FileHandler('ioteatime.log')
 log.addHandler(handler)
 
-sched = BackgroundScheduler(timezone='Asia/Seoul')
-
 param_grid = {
     'changepoint_prior_scale': [0.01, 0.05, 0.1],
     'seasonality_prior_scale': [0.01, 0.05, 0.1],
@@ -21,21 +20,21 @@ param_grid = {
 }
 
 organization_id = 1
+count = 0
 
-@sched.scheduled_job('cron', hour='00', minute='10', id='forecast')
 def run_forecast():
     log.info("forecast job start : " + str(datetime.datetime.now()))
     forecast.run(param_grid)
     log.info("forecast job end : " + str(datetime.datetime.now()))
 
-@sched.scheduled_job('cron', hour='00', minute='05', id='outlier')
 def run_outlier():
     log.info("outlier job start : " + str(datetime.datetime.now()))
     outlier.run(organization_id)
     log.info("outlier job end : " + str(datetime.datetime.now()))
 
-sched.start()
+outlier_job = schedule.every().day.at("00:05").do(run_outlier)
+forecast_job = schedule.every().day.at("00:10").do(run_forecast)
 
 while True:
-    pass
-
+    schedule.run_pending()
+    time.sleep(1)
