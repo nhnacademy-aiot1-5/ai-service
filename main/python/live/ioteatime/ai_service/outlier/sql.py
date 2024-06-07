@@ -20,7 +20,7 @@ Session = scoped_session(session_factory)
 def query(query):
     try:
         session = Session()
-        result = pd.read_sql(query, con=session).copy()
+        result = pd.read_sql(query, con=session.bind).copy()
     finally:
         Session.remove()
 

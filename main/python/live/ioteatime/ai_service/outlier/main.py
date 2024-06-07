@@ -36,6 +36,7 @@ def find_outliers(df_places):
         if place == 'total' : continue
 
         df = get_hourly_electricity(get_query('5m', place))
+        if df is None or len(df) == 0: continue
         values = find_values(df)
 
         outlier = {
@@ -79,6 +80,9 @@ def get_query(window_period, place):
 
 def get_hourly_electricity(query):
     result = influx.client.query_api().query(org=influx.org, query=query)
+
+    if result is None or len(result) == 0:
+        return pd.DataFrame(columns=['ds', 'y'])
 
     json_data = [{"time": record.get_time(), "value": record.get_value()} for record in result[0]]
     df_json = pd.DataFrame(json_data)
